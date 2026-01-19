@@ -1,26 +1,24 @@
 import { NavLink, Link } from "react-router-dom";
 import React from "react";
 import toast from "react-hot-toast";
-// import badge from "badge";
-
 
 import { useAuth } from "../../context/auth";
-
-
-
+import { useCart } from "../../context/Cart";
+import { Badge } from "antd";
 
 function Header() {
   const { auth, setAuth } = useAuth();
+  const [cart, setCart] = useCart();
 
   const handleLogout = () => {
-  setAuth({
-    ...auth, 
-    user: null,
-    token:"",
-  });
-  localStorage.removeItem("auth");
-  toast.success("logout successfull");
-};
+    setAuth({
+      ...auth,
+      user: null,
+      token: "",
+    });
+    localStorage.removeItem("auth");
+    toast.success("logout successfull");
+  };
 
   return (
     <>
@@ -58,7 +56,7 @@ function Header() {
                 Pagenotfound
               </NavLink>
 
-              {!auth?.user? (
+              {!auth?.user ? (
                 <>
                   <NavLink
                     to="/login"
@@ -85,9 +83,8 @@ function Header() {
                       <li>
                         <NavLink
                           className="dropdown-item"
-                          to={`/dashboard/${
-                            auth?.user?.role === 1 ? "admin" : "user"
-                          }`}
+                          to={`/dashboard/${auth?.user?.role === 1 ? "admin" : "user"
+                            }`}
                         >
                           Dashboard
                         </NavLink>
@@ -105,6 +102,14 @@ function Header() {
                   </li>
                 </>
               )}
+
+
+              <li to="/cart" className="nav-link">
+                <Badge count={cart?.length} showZero>
+                  <NavLink to="/cart" className="nav-link">Cart</NavLink>
+                </Badge>
+              </li>
+
             </div>
           </div>
         </div>
