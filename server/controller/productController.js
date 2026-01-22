@@ -1,14 +1,15 @@
 import productModel from "../model/productModel.js";
 import fs from "fs";
 import slugify from "slugify";
+import orderModel from "../model/orderModel.js";
+
 import braintree from "braintree";
 import dotenv from "dotenv";
-import orderModel from "../model/orderModel.js";
-dotenv.config({path:"./config.env"});
 
-
+dotenv.config({ path: "./config.env" });
 dotenv.config();
-// BRAINTREE CONFIGURATION
+
+//payment gateway
 var gateway = new braintree.BraintreeGateway({
   environment: braintree.Environment.Sandbox,
   merchantId: process.env.BRAINTREE_MERCHANT_ID,
@@ -16,8 +17,9 @@ var gateway = new braintree.BraintreeGateway({
   privateKey: process.env.BRAINTREE_PRIVATE_KEY,
 });
 
-
+// =====================
 // CREATE PRODUCT
+// =====================
 export const createProductController = async (req, res) => {
   try {
     const { name, description, price, category, quantity, shipping } =
@@ -228,7 +230,6 @@ export const updateProductController = async (req, res) => {
   }
 };
 
-
 // FILTER PRODUCTS
 export const productFilterController = async (req, res) => {
   try {
@@ -266,7 +267,7 @@ export const productCountController = async (req, res) => {
       message: "Error in product count",
       error,
     });
-  } 
+  }
 };
 
 // PRODUCT LIST PER PAGE
@@ -294,8 +295,7 @@ export const productListController = async (req, res) => {
   }
 };
 
-
-//payment gateway api
+//payement gateway api
 //token
 export const braintreeTokenController = async (req, res) => {
   try {
@@ -311,15 +311,15 @@ export const braintreeTokenController = async (req, res) => {
   }
 };
 
-//payment
+//patment
 export const braintreePaymentController = async (req, res) => {
   try {
     const { nonce, cart } = req.body;
-    let totel = 0;
+    let total = 0;
     cart.map((i) => {
       total += i.price;
     });
-    let newTranstion = gateway.transaction.sale(
+    let newTransaction = gateway.transaction.sale(
       {
         amount: total,
         paymentMethodNonce: nonce,
@@ -328,7 +328,7 @@ export const braintreePaymentController = async (req, res) => {
         },
       },
       function (error, result) {
-        if(result) {
+        if (result) {
           const order = new orderModel({
             products: cart,
             payment: result,
@@ -340,8 +340,7 @@ export const braintreePaymentController = async (req, res) => {
         }
       }
     );
-  }catch (error) {
+  } catch (error) {
     console.log(error);
   }
-  };
-
+};
